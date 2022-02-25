@@ -4,35 +4,16 @@ const { restricted, checkCredsExist, checkUsernameFree } = require('../middlewar
 const bcrypt = require('bcryptjs');
 
 router.post('/register', checkUsernameFree, async (req, res, next) => {
-  /*
-    IMPLEMENT
-
-    1- In order to register a new account the client must provide `username` and `password`:
-      {
-        "username": "Captain Marvel", // must not exist already in the `users` table
-        "password": "foobar"          // needs to be hashed before it's saved
-      }
-
-    2- On SUCCESSFUL registration,
-      the response body should have `id`, `username` and `password`:
-      {
-        "id": 1,
-        "username": "Captain Marvel",
-        "password": "2a$08$jG.wIGR2S4hxuyWNcBf9MuoC4y0dNy7qC/LbmtuFBSdIhWks2LhpG"
-      }
-
-    3- On FAILED registration due to `username` or `password` missing from the request body,
-      the response body should include a string exactly as follows: "username and password required".
-
-    4- On FAILED registration due to the `username` being taken,
-      the response body should include a string exactly as follows: "username taken".
-  */
   try {
     const { username, password } = req.body;
-    const hash = bcrypt.hashSync(password, 8);
-    const user = { username, password: hash};
-    const newUser = await addUser(user);
-    res.status(201).json(newUser);
+    if (!username || !password) {
+      res.status(400).json({ message: 'username and password required' });
+    } else {
+      const hash = bcrypt.hashSync(password, 8);
+      const user = { username, password: hash};
+      const newUser = await addUser(user);
+      res.status(201).json(newUser);
+    }
   } catch(err) {
     next(err);
   };
