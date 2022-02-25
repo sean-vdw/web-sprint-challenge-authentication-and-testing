@@ -44,6 +44,15 @@ const checkUsernameFree = async (req, res, next) => {
   };
 };
 
+const checkUsername = (req, res, next) => {
+  const { username } = req.body;
+  if (username === null || username === undefined || username.trim() === '') {
+    res.status(400).json({ message: 'username and password required' });
+  } else {
+    next();
+  };
+};
+
 const checkCredsExist = async (req, res, next) => {
   try {
     const { username, password } = req.body;
@@ -60,5 +69,6 @@ const checkCredsExist = async (req, res, next) => {
 module.exports = {
   restricted,
   checkUsernameFree,
+  checkUsername,
   checkCredsExist
 }

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const { findBy, addUser } = require('../users/users-model');
-const { checkCredsExist, checkUsernameFree } = require('../middleware/restricted');
+const { checkCredsExist, checkUsernameFree, checkUsername } = require('../middleware/restricted');
 const bcrypt = require('bcryptjs');
 const { TOKEN_SECRET } = require('../../config/index');
 
@@ -16,7 +16,7 @@ const buildToken = (user) => {
   return jwt.sign(payload, TOKEN_SECRET, options);
 };
 
-router.post('/register', checkUsernameFree, async (req, res, next) => {
+router.post('/register', checkUsername, checkUsernameFree, async (req, res, next) => {
   try {
     const { username, password } = req.body;
     if (username === null || username === undefined || username.trim() === '' || password === null || password === undefined || password.trim() === '') {
