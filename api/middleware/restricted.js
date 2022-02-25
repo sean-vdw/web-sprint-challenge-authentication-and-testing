@@ -1,4 +1,6 @@
 const Users = require('../users/users-model');
+const jwt = require('jsonwebtoken');
+const { TOKEN_SECRET } = require('../../config/index');
 
 const restricted = (req, res, next) => {
   /*
@@ -12,13 +14,19 @@ const restricted = (req, res, next) => {
     3- On invalid or expired token in the Authorization header,
       the response body should include a string exactly as follows: "token invalid".
   */
- if (req.session.user) {
-  next();
- } else if (req.session.user === null || req.session.user === undefined || req.session.user.trim() === '') {
-  res.status(400).json({ message: 'token required' });
- } else {
-   res.status(401).json({ message: 'token invalid' });
- };
+  const token = req.headers.authorization;
+  if (token === null || token === undefined || token === '') {
+    res.status(400).json({ message: 'token required' });
+  } else {
+    jwt.verify(token, TOKEN_SECRET, (err, decoded) => {
+      if(err) {
+        res.status(401).json({ message: 'token invalid' });
+      } else {
+        req.decodedJwt = decoded;
+        next();
+      };
+    });
+  };
 };
 
 const checkUsernameFree = async (req, res, next) => {
@@ -38,10 +46,8 @@ const checkUsernameFree = async (req, res, next) => {
 const checkCredsExist = async (req, res, next) => {
   try {
     const { username, password } = req.body;
-    const existingName = Users.findBy({ username });
-    const existingPass = Users.findBy({ password });
-    if (!existingName || !existingPass) {
-      res.status(401).json({ message: 'username and password required' })
+    if (!username || username.trim() === '' || !password || password.trim() === '') {
+      res.status(400).json({ message: 'username and password required' });
     } else {
       next();
     }
