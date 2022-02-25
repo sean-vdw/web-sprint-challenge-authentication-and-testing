@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
-const { addUser, findBy } = require('../users/users-model');
+const { findBy, addUser } = require('../users/users-model');
 const { checkCredsExist, checkUsernameFree } = require('../middleware/restricted');
 const bcrypt = require('bcryptjs');
 const { TOKEN_SECRET } = require('../../config/index');
@@ -8,8 +8,7 @@ const { TOKEN_SECRET } = require('../../config/index');
 const buildToken = (user) => {
   const payload = {
     subject: user.id,
-    username: user.username,
-    password: user.password
+    username: user.username
   }
   const options = {
     expiresIn: '1d',
